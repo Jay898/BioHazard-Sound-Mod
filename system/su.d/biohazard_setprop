@@ -1,0 +1,20 @@
+#!/system/bin/sh
+
+#
+setprop tunnel.decode false
+setprop lpa.decode false
+setprop lpa.releaselock false
+setprop lpa.use-stagefright false
+setprop lpa.releaselock false
+setprop tunnel.decode false
+setprop tunnel.audiovideo.decode false
+setprop tunnel.audio.encode false
+#
+
+LOG_FILE=/data/local/biohazard_setprop.log;
+
+if [ -e /data/local/biohazard_setprop.log ]; then
+    rm /data/local/biohazard_setprop.log
+fi
+
+echo "biohazard_setprop has run successfully $(date +"%m-%d-%Y %H:%M:%S")" | tee -a $LOG_FILE;

@@ -144,15 +144,167 @@ rm -rf /system/app/ViPER4Arise
 rm -rf /system/app/ViPER4ARISE
 rm -rf /system/priv-app/AudioFX
 rm -rf /system/app/AudioFX
+rm -rf /system/priv-app/MusicFx
+rm -rf /system/app/MusicFx
 rm -rf /system/priv-app/DSPManager
 rm -rf /system/app/DSPManager
 rm -rf ViPER4AndroidDATA
 rm -r /system/priv-app/ViPER4AndroidPK
 rm -r /system/app/ViPER4AndroidPK
 rm -r /system/addon.d/blacklist
+rm -r /system/su.d/set_permissive_boot.sh
+rm -r /system/su.d/50TweakProp.sh
+rm -r /system/addon.d/blacklist
 rm -r /system/addon.d/50-rr.sh
 rm -r /system/addon.d/6-AM3D.sh
+rm -r /system/su.d/arisesoundserver
 rm -r /system/su.d/arisesound_setprop
+
+# Extract files
+cd /tmp
+mkdir biohazard
+cd biohazard
+unzip -o "$ZIP"
+
+# Copy files
+cp_perm 0 0 0644 /tmp/biohazard/biohazard/lib/soundfx/libam3daudioenhancement.so /system/lib/soundfx/libam3daudioenhancement.so
+
+if [ -e /system/lib64 ]; then
+  mkdir -p /system/lib64/soundfx
+  cp /tmp/biohazard/biohazard/lib64/soundfx/libeffectproxy.so /system/lib64/soundfx/libeffectproxy.so
+  set_perm_recursive 0 0 0755 0644 /system/lib64/soundfx
+fi
+
+if [ -f /system/etc/htc_audio_effects.conf ]; then
+  cp /tmp/biohazard/biohazard/etc/htc_audio_effects /system/etc/htc_audio_effects.conf
+  set_perm 0 0 0644 /system/etc/htc_audio_effects.conf
+fi
+
+if [ -f /vendor/etc/audio_effects_vendor.conf ]; then
+  cp /tmp/biohazard/biohazard/etc/audio_effects_vendor.conf /vendor/etc/audio_effects_vendor.conf
+  set_perm 0 0 0644 /vendor/etc/audio_effects_vendor.conf
+fi
+
+if [ -f /system/vendor/etc/audio_offload_effects.conf ]; then
+  cp /tmp/biohazard/biohazard/etc/audio_offload_effects.conf /system/vendor/etc/audio_offload_effects.conf
+  set_perm 0 2000 0644 /system/vendor/etc/audio_offload_effects.conf
+fi
+
+# Get API version
+API=$(cat /system/build.prop | grep "ro.build.version.sdk=" | dd bs=1 skip=21 count=2)
+ABI=$(grep_prop ro.product.cpu.abi | cut -c-3)
+ABILONG=$(grep_prop ro.product.cpu.abi)
+
+if [ "$API" -ge "21" ];
+then
+	mkdir -p /system/priv-app/ViPER4Android
+    mkdir -p /system/priv-app/ViPER4Android/lib/arm
+    mkdir -p /system/su.d
+    mkdir -p /system/app/AM3DZirene
+	cp -rf /tmp/biohazard/system/* /system
+	cp /tmp/biohazard/biohazard/su.d/soundserver /system/su.d/soundserver
+    cp /tmp/biohazard/biohazard/app/ViPER4Android.apk /system/priv-app/ViPER4Android/ViPER4Android.apk
+	cp_perm 0 0 0644 /tmp/biohazard/biohazard/app/AM3DZirene/AM3DZirene.apk /system/app/AM3DZirene/AM3DZirene.apk
+  if [ $ABI = x86 ] || [ $ABILONG = x86_64 ]; then
+    cp /tmp/biohazard/biohazard/app/x86/libV4AJniUtils.so /system/priv-app/ViPER4Android//lib/arm/libV4AJniUtils.so
+    cp /tmp/biohazard/biohazard/app/x86/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
+    cp /tmp/biohazard/biohazard/lib/libv4a_fx_jb_X86.so /system/lib/soundfx/libv4a_fx_ics.so
+  else
+    cp /tmp/biohazard/biohazard/app/armeabi/libV4AJniUtils.so /system/priv-app/ViPER4Android//lib/arm/libV4AJniUtils.so
+    cp /tmp/biohazard/biohazard/app/armeabi/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
+    cp /tmp/biohazard/biohazard/lib/libv4a_fx_jb_NEON.so /system/lib/soundfx/libv4a_fx_ics.so
+  fi
+  if [ ! -f /system/vendor/etc/audio_effects.conf ]; then
+    mkdir -p /system/vendor/etc
+    cp /tmp/biohazard/biohazard/etc/audio_effects.conf /system/vendor/etc/audio_effects.conf
+    set_perm 0 2000 0755 /system/vendor/etc
+    set_perm 0 2000 0644 /system/vendor/etc/audio_effects.conf
+  else
+    cp /tmp/biohazard/biohazard/audio_effects.conf /system/vendor/etc/audio_effects.conf
+    set_perm 0 2000 0644 /system/vendor/etc/audio_effects.conf
+  fi
+  if [ $NAME = angler ] || [ $NAME = bullhead ] || [ $NAME = flounder ]; then
+    cp /tmp/biohazard/biohazard/etc/audio_effects.conf /vendor/etc/audio_effects.conf
+  fi
+    set_perm 0 2000 0644 /vendor/etc/audio_effects.conf
+	set_perm_recursive 0 0 0755 0755 /system/su.d
+    set_perm_recursive 0 0 0755 0644 /system/priv-app/ViPER4Android
+    set_perm 0 0 0644 /system/lib/soundfx/libv4a_fx_ics.so
+    set_perm 0 0 0644 /system/lib/soundfx/libeffectproxy.so
+    set_perm 0 0 0644 /system/lib/libV4AJniUtils.so
+	set_perm 0 0 0755 /system/app/AM3DZirene
+	set_perm 0 2000 0755 /system/bin/alsa_amixer
+    set_perm 0 2000 0755 /system/bin/alsa_aplay
+    set_perm 0 2000 0755 /system/bin/alsa_ctl	
+    set_perm 0 2000 0755 /system/bin/alsaucm_test
+    set_perm 0 2000 0755 /system/bin/aplay
+    set_perm 0 2000 0755 /system/bin/arm-linux-gnueabi-sndfile-resample
+    set_perm 0 2000 0755 /system/bin/asound
+    set_perm 0 2000 0755 /system/bin/load_mg_driver
+    set_perm 0 2000 0755 /system/bin/load_sony_driver
+    set_perm 0 2000 0755 /system/bin/mm-adec-omxaac-test
+    set_perm 0 2000 0755 /system/bin/mm-audio-alsa-test
+    set_perm 0 2000 0755 /system/bin/mm-audio-ftm
+    set_perm 0 2000 0755 /system/bin/MPQDvbCTestApp
+    set_perm 0 2000 0755 /system/bin/nfx_log_service
+    set_perm 0 2000 0755 /system/bin/sound8960
+    set_perm 0 2000 0755 /system/bin/spkamp
+    set_perm 0 2000 0755 /system/bin/tinymix
+    set_perm 0 2000 0755 /system/bin/wmportd
+	set_perm 0 0 0755 /system/su.d/biohazard_setprop
+	set_perm 0 0 0755 /system/su.d/dts_configurator_wrapper
+else
+    cp /tmp/biohazard/biohazard/etc/audio_effects.conf /system/vendor/etc/audio_effects.conf
+	cp -rf /tmp/biohazard/system/* /system
+	cp /tmp/biohazard/biohazard/app/ViPER4Android.apk /system/app/ViPER4Android.apk
+	cp_perm 0 0 0644 /tmp/biohazard/biohazard/app/AM3DZirene/AM3DZirene.apk /system/app/AM3DZirene.apk
+  if [ $ABI -eq x86 ]; then
+    cp /tmp/biohazard/biohazard/app/x86/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
+    cp /tmp/biohazard/biohazard/lib/libv4a_fx_jb_X86.so /system/lib/soundfx/libv4a_fx_ics.so
+  else
+    cp /tmp/biohazard/biohazard/app/armeabi/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
+    cp /tmp/biohazard/biohazard/lib/libv4a_fx_jb_NEON.so /system/lib/soundfx/libv4a_fx_ics.so
+  fi
+    set_perm 0 2000 0644 /system/vendor/etc/audio_effects.conf
+    set_perm 0 0 0644 /system/app/ViPER4Android.apk
+    set_perm 0 0 0644 /system/lib/libV4AJniUtils.so
+    set_perm 0 0 0644 /system/lib/soundfx/libv4a_fx_ics.so
+    set_perm 0 0 0644 /system/lib/soundfx/libeffectproxy.so
+	set_perm 0 2000 0755 /system/bin/alsa_amixer
+    set_perm 0 2000 0755 /system/bin/alsa_aplay
+    set_perm 0 2000 0755 /system/bin/alsa_ctl	
+    set_perm 0 2000 0755 /system/bin/alsaucm_test
+    set_perm 0 2000 0755 /system/bin/aplay
+    set_perm 0 2000 0755 /system/bin/arm-linux-gnueabi-sndfile-resample
+    set_perm 0 2000 0755 /system/bin/asound
+    set_perm 0 2000 0755 /system/bin/load_mg_driver
+    set_perm 0 2000 0755 /system/bin/load_sony_driver
+    set_perm 0 2000 0755 /system/bin/mm-adec-omxaac-test
+    set_perm 0 2000 0755 /system/bin/mm-audio-alsa-test
+    set_perm 0 2000 0755 /system/bin/mm-audio-ftm
+    set_perm 0 2000 0755 /system/bin/MPQDvbCTestApp
+    set_perm 0 2000 0755 /system/bin/nfx_log_service
+    set_perm 0 2000 0755 /system/bin/sound8960
+    set_perm 0 2000 0755 /system/bin/spkamp
+    set_perm 0 2000 0755 /system/bin/tinymix
+    set_perm 0 2000 0755 /system/bin/wmportd
+	set_perm 0 0 0755 /system/su.d/biohazard_setprop
+	set_perm 0 0 0755 /system/su.d/dts_configurator_wrapper
+fi
+
+# If custom setprop exists, use it
+if [ -e data/media/0/biohazard_setprop ]; then
+  cp data/media/0/biohazard_setprop /system/su.d/biohazard_setprop
+  set_perm 0 0 0755 /system/su.d/biohazard_setprop
+fi
+
+mkdir -p /system/etc/presets
+set_perm 0 0 0755 /system/etc/presets
+cp_perm 0 0 0644 /tmp/biohazard/biohazard/etc/presets/presets.xml /system/etc/presets/presets.xml
+
+mkdir -p /system/etc/presets/TransducerEQ_XML/Foxconn
+set_perm 0 0 0755 /system/etc/presets/TransducerEQ_XML/Foxconn
+cp_perm 0 0 0644 /tmp/biohazard/biohazard/etc/presets/TransducerEQ_XML/Foxconn/TransducerEQ.xml /system/etc/presets/TransducerEQ_XML/Foxconn/TransducerEQ.xml
 
 # Normal/vendor config locations
 CONFIG_FILE=/system/etc/audio_effects.conf
@@ -191,114 +343,6 @@ fi
 sed -i '/v4a_fx {/,/}/d' $CONFIG_FILE
 sed -i '/v4a_standard_fx {/,/}/d' $CONFIG_FILE
 sed -i '/am3daudioenhancement {/,/}/d' $CONFIG_FILE
-
-# Extract files
-cd /tmp
-mkdir biohazard
-cd biohazard
-unzip -o "$ZIP"
-
-# Copy files
-cp_perm 0 0 0644 /tmp/biohazard/biohazard/lib/soundfx/libam3daudioenhancement.so /system/lib/soundfx/libam3daudioenhancement.so
-
-if [ -e /system/lib64 ]; then
-  mkdir -p /system/lib64/soundfx
-  cp /tmp/biohazard/biohazard/lib64/soundfx/libeffectproxy.so /system/lib64/soundfx/libeffectproxy.so
-  set_perm_recursive 0 0 0755 0644 /system/lib64/soundfx
-fi
-
-# Get API version
-API=$(cat /system/build.prop | grep "ro.build.version.sdk=" | dd bs=1 skip=21 count=2)
-ABI=$(grep_prop ro.product.cpu.abi | cut -c-3)
-ABILONG=$(grep_prop ro.product.cpu.abi)
-
-if [ "$API" -ge "21" ];
-then
-	mkdir -p /system/priv-app/ViPER4Android
-    mkdir -p /system/priv-app/ViPER4Android/lib/arm
-    mkdir -p /system/su.d
-    mkdir -p /system/app/AM3DZirene
-	cp -rf /tmp/biohazard/system/* /system
-	cp /tmp/biohazard/biohazard/su.d/soundserver /system/su.d/soundserver
-    cp /tmp/biohazard/biohazard/app/ViPER4Android.apk /system/priv-app/ViPER4Android/ViPER4Android.apk
-	cp_perm 0 0 0644 /tmp/biohazard/biohazard/app/AM3DZirene/AM3DZirene.apk /system/app/AM3DZirene/AM3DZirene.apk
-  if [ $ABI = x86 ] || [ $ABILONG = x86_64 ]; then
-    cp /tmp/biohazard/biohazard/app/x86/libV4AJniUtils.so /system/priv-app/ViPER4Android//lib/arm/libV4AJniUtils.so
-    cp /tmp/biohazard/biohazard/app/x86/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
-    cp /tmp/biohazard/biohazard/lib/libv4a_fx_jb_X86.so /system/lib/soundfx/libv4a_fx_ics.so
-  else
-    cp /tmp/biohazard/biohazard/app/armeabi/libV4AJniUtils.so /system/priv-app/ViPER4Android//lib/arm/libV4AJniUtils.so
-    cp /tmp/biohazard/biohazard/app/armeabi/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
-    cp /tmp/biohazard/biohazard/lib/libv4a_fx_jb_NEON.so /system/lib/soundfx/libv4a_fx_ics.so
-  fi
-	set_perm_recursive 0 0 0755 0755 /system/su.d
-    set_perm_recursive 0 0 0755 0644 /system/priv-app/ViPER4Android
-    set_perm 0 0 0644 /system/lib/soundfx/libv4a_fx_ics.so
-    set_perm 0 0 0644 /system/lib/soundfx/libeffectproxy.so
-    set_perm 0 0 0644 /system/lib/libV4AJniUtils.so
-	set_perm 0 0 0755 /system/app/AM3DZirene
-	set_perm 0 2000 0755 /system/bin/alsa_amixer
-    set_perm 0 2000 0755 /system/bin/alsa_aplay
-    set_perm 0 2000 0755 /system/bin/alsa_ctl	
-    set_perm 0 2000 0755 /system/bin/alsaucm_test
-    set_perm 0 2000 0755 /system/bin/aplay
-    set_perm 0 2000 0755 /system/bin/arm-linux-gnueabi-sndfile-resample
-    set_perm 0 2000 0755 /system/bin/asound
-    set_perm 0 2000 0755 /system/bin/load_mg_driver
-    set_perm 0 2000 0755 /system/bin/load_sony_driver
-    set_perm 0 2000 0755 /system/bin/mm-adec-omxaac-test
-    set_perm 0 2000 0755 /system/bin/mm-audio-alsa-test
-    set_perm 0 2000 0755 /system/bin/mm-audio-ftm
-    set_perm 0 2000 0755 /system/bin/MPQDvbCTestApp
-    set_perm 0 2000 0755 /system/bin/nfx_log_service
-    set_perm 0 2000 0755 /system/bin/sound8960
-    set_perm 0 2000 0755 /system/bin/spkamp
-    set_perm 0 2000 0755 /system/bin/tinymix
-    set_perm 0 2000 0755 /system/bin/wmportd
-	set_perm 0 0 0755 /system/su.d/biohazard_setprop
-else
-	cp -rf /tmp/biohazard/system/* /system
-	cp /tmp/biohazard/biohazard/app/ViPER4Android.apk /system/app/ViPER4Android.apk
-	cp_perm 0 0 0644 /tmp/biohazard/biohazard/app/AM3DZirene/AM3DZirene.apk /system/app/AM3DZirene.apk
-  if [ $ABI -eq x86 ]; then
-    cp /tmp/biohazard/biohazard/app/x86/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
-    cp /tmp/biohazard/biohazard/lib/libv4a_fx_jb_X86.so /system/lib/soundfx/libv4a_fx_ics.so
-  else
-    cp /tmp/biohazard/biohazard/app/armeabi/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
-    cp /tmp/biohazard/biohazard/lib/libv4a_fx_jb_NEON.so /system/lib/soundfx/libv4a_fx_ics.so
-  fi
-    set_perm 0 0 0644 /system/app/ViPER4Android.apk
-    set_perm 0 0 0644 /system/lib/libV4AJniUtils.so
-    set_perm 0 0 0644 /system/lib/soundfx/libv4a_fx_ics.so
-    set_perm 0 0 0644 /system/lib/soundfx/libeffectproxy.so
-	set_perm 0 2000 0755 /system/bin/alsa_amixer
-    set_perm 0 2000 0755 /system/bin/alsa_aplay
-    set_perm 0 2000 0755 /system/bin/alsa_ctl	
-    set_perm 0 2000 0755 /system/bin/alsaucm_test
-    set_perm 0 2000 0755 /system/bin/aplay
-    set_perm 0 2000 0755 /system/bin/arm-linux-gnueabi-sndfile-resample
-    set_perm 0 2000 0755 /system/bin/asound
-    set_perm 0 2000 0755 /system/bin/load_mg_driver
-    set_perm 0 2000 0755 /system/bin/load_sony_driver
-    set_perm 0 2000 0755 /system/bin/mm-adec-omxaac-test
-    set_perm 0 2000 0755 /system/bin/mm-audio-alsa-test
-    set_perm 0 2000 0755 /system/bin/mm-audio-ftm
-    set_perm 0 2000 0755 /system/bin/MPQDvbCTestApp
-    set_perm 0 2000 0755 /system/bin/nfx_log_service
-    set_perm 0 2000 0755 /system/bin/sound8960
-    set_perm 0 2000 0755 /system/bin/spkamp
-    set_perm 0 2000 0755 /system/bin/tinymix
-    set_perm 0 2000 0755 /system/bin/wmportd
-	set_perm 0 0 0755 /system/su.d/biohazard_setprop
-fi
-
-mkdir -p /system/etc/presets
-set_perm 0 0 0755 /system/etc/presets
-cp_perm 0 0 0644 /tmp/biohazard/biohazard/etc/presets/presets.xml /system/etc/presets/presets.xml
-
-mkdir -p /system/etc/presets/TransducerEQ_XML/Foxconn
-set_perm 0 0 0755 /system/etc/presets/TransducerEQ_XML/Foxconn
-cp_perm 0 0 0644 /tmp/biohazard/biohazard/etc/presets/TransducerEQ_XML/Foxconn/TransducerEQ.xml /system/etc/presets/TransducerEQ_XML/Foxconn/TransducerEQ.xml
 
 # If HTC config exists, patch it
 if [ -f $HTC_CONFIG_FILE ];
@@ -349,7 +393,7 @@ rm /system/toolbox
 umount /system
 
 if [ $NAME = angler ] || [ $NAME = bullhead ] || [ $NAME = flounder ]; then
-  umount $VEND
+  umount /vendor
 fi
 
 rm -rf /tmp/biohazard

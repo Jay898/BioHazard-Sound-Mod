@@ -1,0 +1,16 @@
+
+BioHazard Sound Mod
+Android Infected
+
+Version : SRC-I
+Developer : anandmore
+
+Changelog:
+-Added LG V20 libraries, effects & build.prop entries
+-Added htc_audio_effects, audio_effects_vendor, audio_offload_effects & dts_configurator_wrapper
+-Fixed double entries of V4A in audio_effects.conf (no one noticed??)
+-Increased comatibility for almost all devices(by script handling)
+-Incresed comatibility with stock ROMs(except one, i am looking at you Touchwiz!)
+-Minor script changes and fixes (see my github for details)
+
+XDA Thread - http://forum.xda-developers.com/android/software/sound-mod-biohazard-android-infected-t3373888

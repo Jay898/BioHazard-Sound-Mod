@@ -11,17 +11,17 @@ you have been warned!)
 
 # Features:
 
-ViPER4Android 2.5.0.5
-Beats Audio by Dr.Dre
-Samsung SoundAlive Effects
-Pure Audio Engine 2.0
-Harmoforia Engine
-ZeXshO X-Engine
-Qualcomm Ported Snapdragon™ HW effects
-Dirac HD Audio
-Sony Ported Xperia Premium Sound Processing
-DTS Sound Processing
-SRS Sound Processing
-and much more...
+- ViPER4Android 2.5.0.5
+- Beats Audio by Dr.Dre
+- Samsung SoundAlive Effects
+- Pure Audio Engine 2.0
+- Harmoforia Engine
+- ZeXshO X-Engine
+- Qualcomm Ported Snapdragon™ HW effects
+- Dirac HD Audio
+- Sony Ported Xperia Premium Sound Processing
+- DTS Sound Processing
+- SRS Sound Processing
+- and much more...
 
 XDA Thread - http://forum.xda-developers.com/android/software/sound-mod-biohazard-android-infected-t3373888

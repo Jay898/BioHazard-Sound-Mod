@@ -9,6 +9,19 @@ setprop lpa.releaselock false
 setprop tunnel.decode false
 setprop tunnel.audiovideo.decode false
 setprop tunnel.audio.encode false
+setprop audio.offload.buffer.size.kb 32
+setprop audio.offload.pcm.24bit.enable true
+setprop audio.offload.track.enable true
+setprop audio.deep_buffer.media true
+setprop audio.offload.multiaac.enable true
+setprop audio.offload.passthrough true
+setprop audio.offload.gapless.enabled true
+setprop audio.offload.multiple.enabled true
+setprop audio.offload.video false
+setprop audio.offload.pcm.16bit.enable false
+setprop audio.dolby.ds2.enabled false
+setprop audio.dolby.ds2.hardbypass false
+setprop audio.offload.24bit.enable 1
 #
 
 LOG_FILE=/data/local/biohazard_setprop.log;

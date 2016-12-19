@@ -1,8 +1,6 @@
 #!/sbin/sh
 
-# Based on osm0sis's shell installer script with bits from Chainfire's SuperSU shell installer script
-#
-# This file contains parts from the scripts taken from the AM3DZirene by ahrion
+# Made by anandmore for BioHazard Sound Mod @xda-developers.com
 # This file contains parts from the scripts taken from the V4A 2.5.0.5 by guitardedhero
 # This file contains parts from the update-binary taken from the SuperSU installation zip.
 #
@@ -16,57 +14,30 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-OUTFD=$2
+OUTFD=/proc/self/fd/$2;
+ZIPFILE="$3";
+DIR=$(dirname "$ZIPFILE");
 ZIP=$3
+BIOHAZARD=/tmp/zip
+API=$(cat /system/build.prop | grep "ro.build.version.sdk=" | dd bs=1 skip=21 count=2)
+ANGL=$(cat /system/build.prop | grep "ro.product.name=angler")
+BULL=$(cat /system/build.prop | grep "ro.product.name=bullhead")
+FLOU=$(cat /system/build.prop | grep "ro.product.name=flounder")
+X86=$(cat /system/build.prop | grep "ro.product.cpu.abi=x86")
+X8664=$(cat /system/build.prop | grep "ro.product.cpu.abi=x86_64")
 
-SYSTEMLIB=/system/lib
+ui_print() { echo -e "ui_print $1\nui_print" > $OUTFD; }
 
-ui_print() {
-  echo -n -e "ui_print $1\n" > /proc/self/fd/$OUTFD
-  echo -n -e "ui_print\n" > /proc/self/fd/$OUTFD
+set_perm_recursive() {
+  uid=$1; gid=$2; dmod=$3; fmod=$4;
+  shift 4;
+  until [ ! "$1" ]; do
+    chown -R $uid.$gid $1; chown -R $uid:$gid $1;
+    find "$1" -type d -exec chmod $dmod {} +;
+    find "$1" -type f -exec chmod $fmod {} +;
+    shift;
+  done;
 }
-
-ch_con() {
-  LD_LIBRARY_PATH=$SYSTEMLIB /system/toolbox chcon -h u:object_r:system_file:s0 $1
-  LD_LIBRARY_PATH=$SYSTEMLIB /system/bin/toolbox chcon -h u:object_r:system_file:s0 $1
-  chcon -h u:object_r:system_file:s0 $1
-  LD_LIBRARY_PATH=$SYSTEMLIB /system/toolbox chcon u:object_r:system_file:s0 $1
-  LD_LIBRARY_PATH=$SYSTEMLIB /system/bin/toolbox chcon u:object_r:system_file:s0 $1
-  chcon u:object_r:system_file:s0 $1
-}
-
-ch_con_ext() {
-  LD_LIBRARY_PATH=$SYSTEMLIB /system/toolbox chcon $2 $1
-  LD_LIBRARY_PATH=$SYSTEMLIB /system/bin/toolbox chcon $2 $1
-  chcon $2 $1
-}
-
-ln_con() {
-  LD_LIBRARY_PATH=$SYSTEMLIB /system/toolbox ln -s $1 $2
-  LD_LIBRARY_PATH=$SYSTEMLIB /system/bin/toolbox ln -s $1 $2
-  ln -s $1 $2
-  ch_con $2
-}
-
-set_perm() {
-  chown $1.$2 $4
-  chown $1:$2 $4
-  chmod $3 $4
-  ch_con $4
-  ch_con_ext $4 $5
-}
-
-cp_perm() {
-  rm $5
-  if [ -f "$4" ]; then
-    cat $4 > $5
-    set_perm $1 $2 $3 $5 $6
-  fi
-}
-
-cat /system/bin/toolbox > /system/toolbox
-chmod 0755 /system/toolbox
-ch_con /system/toolbox
 
 ui_print " "
 ui_print " "
@@ -86,314 +57,153 @@ ui_print " "
 ui_print " "
 ui_print " "
 
-# Mount system
+# Mount /system, /data and /vendor as r/w
+mount /data
 mount /system
-mount -o rw,remount /system
-mount -o rw,remount /system /system
-
-# Mount vendor
-NAME=$(cat /system/build.prop | grep "ro.product.name=")
-NAME=${NAME:16}
-if [ $NAME = angler ] || [ $NAME = bullhead ] || [ $NAME = flounder ]; then
+if [ "$ANGL" ] || [ "$BULL" ] || [ "$FLOU" ]; then
   mount /vendor
-  mount rw,remount /vendor
-  mount rw,remount /vendor /vendor
 fi
 
-# Remove deep buffer and raw
-if [ -e /system/etc/audio_policy.conf ]; then
+# Remove deep_buffer and raw from audio_policy.conf
+if [ -f "/system/etc/audio_policy.conf" ]; then
   sed -i '/deep_buffer {/,/}/d' /system/etc/audio_policy.conf
   sed -i '/raw {/,/}/d' /system/etc/audio_policy.conf
 fi
-
-if [ -e /system/vendor/etc/audio_policy.conf ]; then
+if [ -f "/system/vendor/etc/audio_policy.conf" ]; then
   sed -i '/deep_buffer {/,/}/d' /system/vendor/etc/audio_policy.conf
   sed -i '/raw {/,/}/d' /system/vendor/etc/audio_policy.conf
 fi
-
-if [ -e /vendor/etc//audio_policy.conf ]; then
-  sed -i '/deep_buffer {/,/}/d' /vendor/etc//audio_policy.conf
-  sed -i '/raw {/,/}/d' /vendor/etc//audio_policy.conf
+if [ -f "/vendor/etc/audio_policy.conf" ]; then
+  sed -i '/deep_buffer {/,/}/d' /vendor/etc/audio_policy.conf
+  sed -i '/raw {/,/}/d' /vendor/etc/audio_policy.conf
 fi
 
-if [ -e /system/vendor/etc/audio_output_policy.conf ]; then
-  sed -i '/deep_buffer {/,/}/d' /system/vendor/etc/audio_output_policy.conf
-fi
-
-if [ -e /system/vendor/etc/audio_output_policy.conf ]; then
-  sed -i '/deep_buffer {/,/}/d' /system/vendor/etc/audio_output_policy.conf
-fi
-
-if [ -f /system/vendor/etc/audio_policy_configuration.xml ]; then
-  sed -i '/deep_buffer {/,/}/d' /system/vendor/etc/audio_policy_configuration.xml
-  sed -i '/AUDIO_OUTPUT_FLAG_DEEP_BUFFER {/,/}/d' /system/vendor/etc/audio_policy_configuration.xml
-fi
-
-# Remove files
-rm -rf /system/app/AM3DZirene
-rm -rf /system/lib/soundfx/libam3daudioenhancement.so
-rm -f /system/etc/presets
+# Remove conflicting files and V4A installs
 rm -rf /system/priv-app/ViPER4Android
-rm -rf /system/priv-app/ViPER4Arise
-rm -rf /system/priv-app/ViPER4ARISE
 rm -rf /system/priv-app/ViPER4Android_FX_A4.x
 rm -rf /system/app/ViPER4Android_FX_A4.x
 rm -rf /system/priv-app/Viper4Android
 rm -rf /system/app/ViPER4Android
+rm -rf /data/app/com.vipercn.viper4android-1
+rm -rf /data/app/com.vipercn.viper4android-2
+rm -rf /system/priv-app/ViPER4Arise
 rm -rf /system/app/ViPER4Arise
+rm -rf /system/priv-app/ViPER4ARISE
 rm -rf /system/app/ViPER4ARISE
 rm -rf /system/priv-app/AudioFX
 rm -rf /system/app/AudioFX
-rm -rf /system/priv-app/MusicFx
-rm -rf /system/app/MusicFx
+rm -rf /system/priv-app/MusicFX
+rm -rf /system/app/MusicFX
 rm -rf /system/priv-app/DSPManager
 rm -rf /system/app/DSPManager
-rm -rf ViPER4AndroidDATA
-rm -r /system/priv-app/ViPER4AndroidPK
-rm -r /system/app/ViPER4AndroidPK
-rm -r /system/addon.d/blacklist
-rm -r /system/su.d/set_permissive_boot.sh
-rm -r /system/su.d/50TweakProp.sh
-rm -r /system/addon.d/blacklist
-rm -r /system/addon.d/50-rr.sh
-rm -r /system/addon.d/6-AM3D.sh
-rm -r /system/su.d/arisesoundserver
+rm -rf /data/data/com.vipercn.viper4android_2
+rm -f /system/priv-app/ViPER4Android.apk
+rm -f /system/app/ViPER4Android.apk
+rm -f /system/priv-app/ViPER4Android_FX_A4.x.apk
+rm -f /system/app/ViPER4Android_FX_A4.x.apk
+rm -f /system/lib/soundfx/libv4a_fx_ics.so
+rm -f /system/lib/libv4a_fx_ics.so
 rm -r /system/su.d/arisesound_setprop
 
-# Extract files
-cd /tmp
-mkdir biohazard
-cd biohazard
+# Unzip the biohazard files into /tmp
+mkdir $BIOHAZARD
+cd $BIOHAZARD
 unzip -o "$ZIP"
 
-# Copy files
-cp_perm 0 0 0644 /tmp/biohazard/biohazard/lib/soundfx/libam3daudioenhancement.so /system/lib/soundfx/libam3daudioenhancement.so
-
-if [ -e /system/lib64 ]; then
-  mkdir -p /system/lib64/soundfx
-  cp /tmp/biohazard/biohazard/lib64/soundfx/libeffectproxy.so /system/lib64/soundfx/libeffectproxy.so
-  set_perm_recursive 0 0 0755 0644 /system/lib64/soundfx
+# Patch audio_effects.conf in various locations
+if [ -f "/system/etc/audio_effects.conf" ]; then
+  sed -i '/v4a_fx {/,/}/d' /system/etc/audio_effects.conf
+  sed -i '/v4a_standard_fx {/,/}/d' /system/etc/audio_effects.conf
+  sed -i 's/^libraries {/libraries {\n  v4a_fx {\n    path \/system\/lib\/soundfx\/libv4a_fx_ics.so\n  }/g' /system/etc/audio_effects.conf
+  sed -i 's/^effects {/effects {\n  v4a_standard_fx {\n    library v4a_fx\n    uuid 41d3c987-e6cf-11e3-a88a-11aba5d5c51b\n  }/g' /system/etc/audio_effects.conf
+fi
+if [ -f "/system/vendor/etc/audio_effects.conf" ]; then
+  sed -i '/v4a_fx {/,/}/d' /system/vendor/etc/audio_effects.conf
+  sed -i '/v4a_standard_fx {/,/}/d' /system/vendor/etc/audio_effects.conf
+  sed -i 's/^libraries {/libraries {\n  v4a_fx {\n    path \/system\/lib\/soundfx\/libv4a_fx_ics.so\n  }/g' /system/vendor/etc/audio_effects.conf
+  sed -i 's/^effects {/effects {\n  v4a_standard_fx {\n    library v4a_fx\n    uuid 41d3c987-e6cf-11e3-a88a-11aba5d5c51b\n  }/g' /system/vendor/etc/audio_effects.conf
+fi
+if [ -f "/vendor/etc/audio_effects.conf" ]; then
+  sed -i '/v4a_fx {/,/}/d' /vendor/etc/audio_effects.conf
+  sed -i '/v4a_standard_fx {/,/}/d' /vendor/etc/audio_effects.conf
+  sed -i 's/^libraries {/libraries {\n  v4a_fx {\n    path \/system\/lib\/soundfx\/libv4a_fx_ics.so\n  }/g' /vendor/etc/audio_effects.conf
+  sed -i 's/^effects {/effects {\n  v4a_standard_fx {\n    library v4a_fx\n    uuid 41d3c987-e6cf-11e3-a88a-11aba5d5c51b\n  }/g' /vendor/etc/audio_effects.conf
+fi
+if [ -f "/system/etc/htc_audio_effects.conf" ]; then
+  sed -i '/v4a_fx {/,/}/d' /system/etc/htc_audio_effects.conf
+  sed -i '/v4a_standard_fx {/,/}/d' /system/etc/htc_audio_effects.conf
+  sed -i 's/^libraries {/libraries {\n  v4a_fx {\n    path \/system\/lib\/soundfx\/libv4a_fx_ics.so\n  }/g' /system/etc/htc_audio_effects.conf
+  sed -i 's/^effects {/effects {\n  v4a_standard_fx {\n    library v4a_fx\n    uuid 41d3c987-e6cf-11e3-a88a-11aba5d5c51b\n  }/g' /system/etc/htc_audio_effects.conf
+fi
+if [ -f "/system/etc/audio_effects_vendor.conf" ]; then
+  sed -i '/v4a_fx {/,/}/d' /system/etc/audio_effects_vendor.conf
+  sed -i '/v4a_standard_fx {/,/}/d' /system/etc/audio_effects_vendor.conf
+  sed -i 's/^libraries {/libraries {\n  v4a_fx {\n    path \/system\/lib\/soundfx\/libv4a_fx_ics.so\n  }/g' /system/etc/audio_effects_vendor.conf
+  sed -i 's/^effects {/effects {\n  v4a_standard_fx {\n    library v4a_fx\n    uuid 41d3c987-e6cf-11e3-a88a-11aba5d5c51b\n  }/g' /system/etc/audio_effects_vendor.conf
+fi
+if [ -f "/system/vendor/etc/audio_offload_effects.conf" ]; then
+  sed -i '/v4a_fx {/,/}/d' /system/vendor/etc/audio_offload_effects.conf
+  sed -i '/v4a_standard_fx {/,/}/d' /system/vendor/etc/audio_offload_effects.conf
+  sed -i 's/^libraries {/libraries {\n  v4a_fx {\n    path \/system\/lib\/soundfx\/libv4a_fx_ics.so\n  }/g' /system/vendor/etc/audio_offload_effects.conf
+  sed -i 's/^effects {/effects {\n  v4a_standard_fx {\n    library v4a_fx\n    uuid 41d3c987-e6cf-11e3-a88a-11aba5d5c51b\n  }/g' /system/vendor/etc/audio_offload_effects.conf
 fi
 
-if [ -f /system/etc/htc_audio_effects.conf ]; then
-  cp /tmp/biohazard/biohazard/etc/htc_audio_effects /system/etc/htc_audio_effects.conf
-  set_perm 0 0 0644 /system/etc/htc_audio_effects.conf
-fi
-
-if [ -f /vendor/etc/audio_effects_vendor.conf ]; then
-  cp /tmp/biohazard/biohazard/etc/audio_effects_vendor.conf /vendor/etc/audio_effects_vendor.conf
-  set_perm 0 0 0644 /vendor/etc/audio_effects_vendor.conf
-fi
-
-if [ -f /system/vendor/etc/audio_offload_effects.conf ]; then
-  cp /tmp/biohazard/biohazard/etc/audio_offload_effects.conf /system/vendor/etc/audio_offload_effects.conf
-  set_perm 0 2000 0644 /system/vendor/etc/audio_offload_effects.conf
-fi
-
-# Get API version
-API=$(cat /system/build.prop | grep "ro.build.version.sdk=" | dd bs=1 skip=21 count=2)
-ABI=$(grep_prop ro.product.cpu.abi | cut -c-3)
-ABILONG=$(grep_prop ro.product.cpu.abi)
-
-if [ "$API" -ge "21" ];
-then
-	mkdir -p /system/priv-app/ViPER4Android
+# Place the files a/c to android versions
+if [ "$API" -ge "21" ]; then
+  mkdir -p /system/su.d
+  cp -rf system/* /system
+  cp biohazard/su.d/soundserver /system/su.d/soundserver
+  if [ "$X86" ] || [ "$X8664" ]; then
+    mkdir -p /system/priv-app/ViPER4Android/lib/x86
+    cp biohazard/app/ViPER4Android.apk /system/priv-app/ViPER4Android/ViPER4Android.apk
+    cp biohazard/app/lib/x86/libV4AJniUtils.so /system/priv-app/ViPER4Android/lib/x86/libV4AJniUtils.so
+    cp biohazard/app/lib/x86/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
+    cp biohazard/lib/soundfx/libv4a_fx_jb_X86.so /system/lib/soundfx/libv4a_fx_ics.so
+  else
     mkdir -p /system/priv-app/ViPER4Android/lib/arm
-    mkdir -p /system/su.d
-    mkdir -p /system/app/AM3DZirene
-	cp -rf /tmp/biohazard/system/* /system
-	cp /tmp/biohazard/biohazard/su.d/soundserver /system/su.d/soundserver
-    cp /tmp/biohazard/biohazard/app/ViPER4Android.apk /system/priv-app/ViPER4Android/ViPER4Android.apk
-	cp_perm 0 0 0644 /tmp/biohazard/biohazard/app/AM3DZirene/AM3DZirene.apk /system/app/AM3DZirene/AM3DZirene.apk
-  if [ $ABI = x86 ] || [ $ABILONG = x86_64 ]; then
-    cp /tmp/biohazard/biohazard/app/x86/libV4AJniUtils.so /system/priv-app/ViPER4Android//lib/arm/libV4AJniUtils.so
-    cp /tmp/biohazard/biohazard/app/x86/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
-    cp /tmp/biohazard/biohazard/lib/libv4a_fx_jb_X86.so /system/lib/soundfx/libv4a_fx_ics.so
-  else
-    cp /tmp/biohazard/biohazard/app/armeabi/libV4AJniUtils.so /system/priv-app/ViPER4Android//lib/arm/libV4AJniUtils.so
-    cp /tmp/biohazard/biohazard/app/armeabi/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
-    cp /tmp/biohazard/biohazard/lib/libv4a_fx_jb_NEON.so /system/lib/soundfx/libv4a_fx_ics.so
+    cp biohazard/app/ViPER4Android.apk /system/priv-app/ViPER4Android/ViPER4Android.apk
+    cp biohazard/app/lib/armeabi/libV4AJniUtils.so /system/priv-app/ViPER4Android/lib/arm/libV4AJniUtils.so
+    cp biohazard/app/lib/armeabi/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
+    cp biohazard/lib/soundfx/libv4a_fx_jb_NEON.so /system/lib/soundfx/libv4a_fx_ics.so
   fi
-  if [ ! -f /system/vendor/etc/audio_effects.conf ]; then
-    mkdir -p /system/vendor/etc
-    cp /tmp/biohazard/biohazard/etc/audio_effects.conf /system/vendor/etc/audio_effects.conf
-    set_perm 0 2000 0755 /system/vendor/etc
-    set_perm 0 2000 0644 /system/vendor/etc/audio_effects.conf
-  else
-    cp /tmp/biohazard/biohazard/audio_effects.conf /system/vendor/etc/audio_effects.conf
-    set_perm 0 2000 0644 /system/vendor/etc/audio_effects.conf
+  if [ -e "$LIB64" ]; then
+    mkdir -p /system/lib64/soundfx
+    cp biohazard/lib64/soundfx/libeffectproxy.so /system/lib64/soundfx/libeffectproxy.so
+    chmod 0755 /system/lib64/soundfx
+    chmod 0644 /system/lib64/soundfx/libeffectproxy.so
   fi
-  if [ $NAME = angler ] || [ $NAME = bullhead ] || [ $NAME = flounder ]; then
-    cp /tmp/biohazard/biohazard/etc/audio_effects.conf /vendor/etc/audio_effects.conf
-  fi
-    set_perm 0 2000 0644 /vendor/etc/audio_effects.conf
-	set_perm_recursive 0 0 0755 0755 /system/su.d
-    set_perm_recursive 0 0 0755 0644 /system/priv-app/ViPER4Android
-    set_perm 0 0 0644 /system/lib/soundfx/libv4a_fx_ics.so
-    set_perm 0 0 0644 /system/lib/soundfx/libeffectproxy.so
-    set_perm 0 0 0644 /system/lib/libV4AJniUtils.so
-	set_perm 0 0 0755 /system/app/AM3DZirene
-	set_perm 0 2000 0755 /system/bin/alsa_amixer
-    set_perm 0 2000 0755 /system/bin/alsa_aplay
-    set_perm 0 2000 0755 /system/bin/alsa_ctl	
-    set_perm 0 2000 0755 /system/bin/alsaucm_test
-    set_perm 0 2000 0755 /system/bin/aplay
-    set_perm 0 2000 0755 /system/bin/arm-linux-gnueabi-sndfile-resample
-    set_perm 0 2000 0755 /system/bin/asound
-    set_perm 0 2000 0755 /system/bin/load_mg_driver
-    set_perm 0 2000 0755 /system/bin/load_sony_driver
-    set_perm 0 2000 0755 /system/bin/mm-adec-omxaac-test
-    set_perm 0 2000 0755 /system/bin/mm-audio-alsa-test
-    set_perm 0 2000 0755 /system/bin/mm-audio-ftm
-    set_perm 0 2000 0755 /system/bin/MPQDvbCTestApp
-    set_perm 0 2000 0755 /system/bin/nfx_log_service
-    set_perm 0 2000 0755 /system/bin/sound8960
-    set_perm 0 2000 0755 /system/bin/spkamp
-    set_perm 0 2000 0755 /system/bin/tinymix
-    set_perm 0 2000 0755 /system/bin/wmportd
-	set_perm 0 0 0755 /system/su.d/biohazard_setprop
-	set_perm 0 0 0755 /system/su.d/dts_configurator_wrapper
+  set_perm_recursive 0 0 0700 0700 /system/su.d
+  set_perm_recursive 0 0 0755 0644 /system/priv-app/ViPER4Android
+  restorecon /system/su.d/soundserver
 else
-    cp /tmp/biohazard/biohazard/etc/audio_effects.conf /system/vendor/etc/audio_effects.conf
-	cp -rf /tmp/biohazard/system/* /system
-	cp /tmp/biohazard/biohazard/app/ViPER4Android.apk /system/app/ViPER4Android.apk
-	cp_perm 0 0 0644 /tmp/biohazard/biohazard/app/AM3DZirene/AM3DZirene.apk /system/app/AM3DZirene.apk
-  if [ $ABI -eq x86 ]; then
-    cp /tmp/biohazard/biohazard/app/x86/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
-    cp /tmp/biohazard/biohazard/lib/libv4a_fx_jb_X86.so /system/lib/soundfx/libv4a_fx_ics.so
+  cp -rf system/* /system
+  cp biohazard/app/ViPER4Android.apk /system/app/ViPER4Android.apk
+  chmod 0644 /system/app/ViPER4Android.apk
+  if [ "$X86" ] || [ "$X8664" ]; then
+    cp biohazard/app/lib/x86/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
+    cp biohazard/lib/soundfx/libv4a_fx_jb_X86.so /system/lib/soundfx/libv4a_fx_ics.so
   else
-    cp /tmp/biohazard/biohazard/app/armeabi/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
-    cp /tmp/biohazard/biohazard/lib/libv4a_fx_jb_NEON.so /system/lib/soundfx/libv4a_fx_ics.so
+    cp biohazard/app/lib/armeabi/libV4AJniUtils.so /system/lib/libV4AJniUtils.so
+    cp biohazard/lib/soundfx/libv4a_fx_jb_NEON.so /system/lib/soundfx/libv4a_fx_ics.so
   fi
-    set_perm 0 2000 0644 /system/vendor/etc/audio_effects.conf
-    set_perm 0 0 0644 /system/app/ViPER4Android.apk
-    set_perm 0 0 0644 /system/lib/libV4AJniUtils.so
-    set_perm 0 0 0644 /system/lib/soundfx/libv4a_fx_ics.so
-    set_perm 0 0 0644 /system/lib/soundfx/libeffectproxy.so
-	set_perm 0 2000 0755 /system/bin/alsa_amixer
-    set_perm 0 2000 0755 /system/bin/alsa_aplay
-    set_perm 0 2000 0755 /system/bin/alsa_ctl	
-    set_perm 0 2000 0755 /system/bin/alsaucm_test
-    set_perm 0 2000 0755 /system/bin/aplay
-    set_perm 0 2000 0755 /system/bin/arm-linux-gnueabi-sndfile-resample
-    set_perm 0 2000 0755 /system/bin/asound
-    set_perm 0 2000 0755 /system/bin/load_mg_driver
-    set_perm 0 2000 0755 /system/bin/load_sony_driver
-    set_perm 0 2000 0755 /system/bin/mm-adec-omxaac-test
-    set_perm 0 2000 0755 /system/bin/mm-audio-alsa-test
-    set_perm 0 2000 0755 /system/bin/mm-audio-ftm
-    set_perm 0 2000 0755 /system/bin/MPQDvbCTestApp
-    set_perm 0 2000 0755 /system/bin/nfx_log_service
-    set_perm 0 2000 0755 /system/bin/sound8960
-    set_perm 0 2000 0755 /system/bin/spkamp
-    set_perm 0 2000 0755 /system/bin/tinymix
-    set_perm 0 2000 0755 /system/bin/wmportd
-	set_perm 0 0 0755 /system/su.d/biohazard_setprop
-	set_perm 0 0 0755 /system/su.d/dts_configurator_wrapper
 fi
 
-# If custom setprop exists, use it
-if [ -e data/media/0/biohazard_setprop ]; then
-  cp data/media/0/biohazard_setprop /system/su.d/biohazard_setprop
-  set_perm 0 0 0755 /system/su.d/biohazard_setprop
-fi
+# Place common files to /system
+cp biohazard/lib/soundfx/libeffectproxy.so /system/lib/soundfx/libeffectproxy.so
+chmod 0644 /system/lib/libV4AJniUtils.so
+chmod 0644 /system/lib/soundfx/libv4a_fx_ics.so
+chmod 0644 /system/lib/soundfx/libeffectproxy.so
 
-mkdir -p /system/etc/presets
-set_perm 0 0 0755 /system/etc/presets
-cp_perm 0 0 0644 /tmp/biohazard/biohazard/etc/presets/presets.xml /system/etc/presets/presets.xml
+# Cleaning up the mod zip files
+rm -rf $BIOHAZARD
 
-mkdir -p /system/etc/presets/TransducerEQ_XML/Foxconn
-set_perm 0 0 0755 /system/etc/presets/TransducerEQ_XML/Foxconn
-cp_perm 0 0 0644 /tmp/biohazard/biohazard/etc/presets/TransducerEQ_XML/Foxconn/TransducerEQ.xml /system/etc/presets/TransducerEQ_XML/Foxconn/TransducerEQ.xml
-
-# Normal/vendor config locations
-CONFIG_FILE=/system/etc/audio_effects.conf
-HTC_CONFIG_FILE=/system/etc/htc_audio_effects.conf
-OTHER_VENDOR_FILE=/system/etc/audio_effects_vendor.conf
-VENDOR_CONFIG=/system/vendor/etc/audio_effects.conf
-
-# If HTC config exists, patch it
-if [ -f $HTC_CONFIG_FILE ];
-then
-	# Remove library & effect
-	sed -i '/v4a_fx {/,/}/d' $HTC_CONFIG_FILE
-    sed -i '/v4a_standard_fx {/,/}/d' $HTC_CONFIG_FILE
-	sed -i '/am3daudioenhancement {/,/}/d' $HTC_CONFIG_FILE
-fi
-
-# If other config exists, patch it
-if [ -f $OTHER_VENDOR_FILE ];
-then
-	# Remove library & effect
-	sed -i '/v4a_fx {/,/}/d' $OTHER_VENDOR_FILE
-    sed -i '/v4a_standard_fx {/,/}/d' $OTHER_VENDOR_FILE
-    sed -i '/am3daudioenhancement {/,/}/d' $OTHER_VENDOR_FILE
-fi
-
-# If vendor exists, patch it
-if [ -f $VENDOR_CONFIG ];
-then
-	# Remove library & effect
-	sed -i '/v4a_fx {/,/}/d' $VENDOR_CONFIG
-    sed -i '/v4a_standard_fx {/,/}/d' $VENDOR_CONFIG
-	sed -i '/am3daudioenhancement {/,/}/d' $VENDOR_CONFIG
-fi
-
-# Remove library & effect
-sed -i '/v4a_fx {/,/}/d' $CONFIG_FILE
-sed -i '/v4a_standard_fx {/,/}/d' $CONFIG_FILE
-sed -i '/am3daudioenhancement {/,/}/d' $CONFIG_FILE
-
-# If HTC config exists, patch it
-if [ -f $HTC_CONFIG_FILE ];
-then
-	# Add libary
-	sed -i 's/^libraries {/libraries {\n  v4a_fx {\n    path \/system\/lib\/soundfx\/libv4a_fx_ics.so\n  }/g' $HTC_CONFIG_FILE
-    sed -i 's/^libraries {/libraries {\n  am3daudioenhancement {\n    path \/system\/lib\/soundfx\/libam3daudioenhancement.so\n  }/g' $HTC_CONFIG_FILE
-	
-	# Add effect
-    sed -i 's/^effects {/effects {\n  v4a_standard_fx {\n    library v4a_fx\n    uuid 41d3c987-e6cf-11e3-a88a-11aba5d5c51b\n  }/g' $HTC_CONFIG_FILE
-    sed -i 's/^effects {/effects {\n  am3daudioenhancement {\n    library am3daudioenhancement\n    uuid 6723dd80-f0b7-11e0-98a2-0002a5d5c51b\n  }/g' $HTC_CONFIG_FILE
-fi
-
-# If other config exists, patch it
-if [ -f $OTHER_VENDOR_FILE ];
-then
-	# Add libary
-	sed -i 's/^libraries {/libraries {\n  v4a_fx {\n    path \/system\/lib\/soundfx\/libv4a_fx_ics.so\n  }/g' $OTHER_VENDOR_FILE
-	sed -i 's/^libraries {/libraries {\n  am3daudioenhancement {\n    path \/system\/lib\/soundfx\/libam3daudioenhancement.so\n  }/g' $OTHER_VENDOR_FILE
-	
-	# Add effect
-    sed -i 's/^effects {/effects {\n  v4a_standard_fx {\n    library v4a_fx\n    uuid 41d3c987-e6cf-11e3-a88a-11aba5d5c51b\n  }/g' $OTHER_VENDOR_FILE
-	sed -i 's/^effects {/effects {\n  am3daudioenhancement {\n    library am3daudioenhancement\n    uuid 6723dd80-f0b7-11e0-98a2-0002a5d5c51b\n  }/g' $OTHER_VENDOR_FILE
-fi
-
-# If vendor exists, patch it
-if [ -f $VENDOR_CONFIG ];
-then
-	# Add libary
-	sed -i 's/^libraries {/libraries {\n  v4a_fx {\n    path \/system\/lib\/soundfx\/libv4a_fx_ics.so\n  }/g' $VENDOR_CONFIG
-	sed -i 's/^libraries {/libraries {\n  am3daudioenhancement {\n    path \/system\/lib\/soundfx\/libam3daudioenhancement.so\n  }/g' $VENDOR_CONFIG
-	
-	# Add effect
-    sed -i 's/^effects {/effects {\n  v4a_standard_fx {\n    library v4a_fx\n    uuid 41d3c987-e6cf-11e3-a88a-11aba5d5c51b\n  }/g' $VENDOR_CONFIG
-	sed -i 's/^effects {/effects {\n  am3daudioenhancement {\n    library am3daudioenhancement\n    uuid 6723dd80-f0b7-11e0-98a2-0002a5d5c51b\n  }/g' $VENDOR_CONFIG
-fi
-
-# Add libary
-sed -i 's/^libraries {/libraries {\n  v4a_fx {\n    path \/system\/lib\/soundfx\/libv4a_fx_ics.so\n  }/g' $CONFIG_FILE
-sed -i 's/^libraries {/libraries {\n  am3daudioenhancement {\n    path \/system\/lib\/soundfx\/libam3daudioenhancement.so\n  }/g' $CONFIG_FILE
-
-# Add effect
-sed -i 's/^effects {/effects {\n  v4a_standard_fx {\n    library v4a_fx\n    uuid 41d3c987-e6cf-11e3-a88a-11aba5d5c51b\n  }/g' $CONFIG_FILE
-sed -i 's/^effects {/effects {\n  am3daudioenhancement {\n    library am3daudioenhancement\n    uuid 6723dd80-f0b7-11e0-98a2-0002a5d5c51b\n  }/g' $CONFIG_FILE
-
-# Cleanup
-rm /system/toolbox
+# Unmount /system, /data and /vendor as r/w
+umount /data
 umount /system
-
-if [ $NAME = angler ] || [ $NAME = bullhead ] || [ $NAME = flounder ]; then
+if [ "$ANGL" ] || [ "$BULL" ] || [ "$FLOU" ]; then
   umount /vendor
 fi
 
-rm -rf /tmp/biohazard
+# Done, Enjoy the experience!
+sleep 2
+exit 0

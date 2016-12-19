@@ -1,35 +1,37 @@
 Signature-Version: 1.0
-SHA1-Digest-Manifest: R8xutUzjmxSUaPyQOXu57KJsZ+c=
 Created-By: 1.0 (Android SignApk)
-
-Name: META-INF/com/google/android/updater-script
-SHA1-Digest: FWn7cdsJKqBMOh2lHx+Olca0+94=
-
-Name: etc/presets/TransducerEQ_XML/JBL_Flip/M810_BT_TEQ_v2.xml
-SHA1-Digest: KlR4ayKV0KuaOe9vKaUpT1hQCns=
-
-Name: lib/soundfx/libam3daudioenhancement.so
-SHA1-Digest: wdd5n2ypqC0+7K6C8yCnDamIWjY=
-
-Name: etc/presets/TransducerEQ_XML/JBL_Micro_Wireless/JBL_MICRO_WIRELE
- SS_TEQ_v2.xml
-SHA1-Digest: PhvSWi/g/YqjbvIfm55w15zeXo4=
+SHA1-Digest-Manifest: DTJZaL/K/BGZyAkMCH1jixhH2SA=
 
 Name: META-INF/com/google/android/update-binary
-SHA1-Digest: DVKyQg2DnnmFTSrzYeDlwaZFZ2s=
+SHA1-Digest: LkA65Y9s/dLilG/qSqWf15ii81w=
 
-Name: etc/presets/TransducerEQ_XML/Foxconn/TransducerEQ.xml
-SHA1-Digest: h6irdHJKKwtFJLPD1tpg6uXNppo=
+Name: META-INF/com/google/android/updater-script
+SHA1-Digest: tLgBaUmk0ImSlk+t55uvNZlijaA=
 
-Name: etc/presets/TransducerEQ_XML/Fugoo_Speaker/Fugoo_v1_TEQ_v1.xml
-SHA1-Digest: OucnSRZOZ01s+rIRVJPYoM+gDdw=
+Name: viper/app/ViPER4Android.apk
+SHA1-Digest: zPVlrOB6X6yrF6ytPo7aNWY3/jI=
 
-Name: addon.d/6-AM3D.sh
-SHA1-Digest: /I0q/MPJ+pPKUstJbcpMDjuaDZo=
+Name: viper/lib/soundfx/libeffectproxy.so
+SHA1-Digest: 1Pt2eJsEU3fBmp4IiPnaSUg58Ag=
 
-Name: app/AM3DZirene/AM3DZirene.apk
-SHA1-Digest: JVeLqkfeKAINElzHMK8uSBcKSUk=
+Name: viper/lib/soundfx/libv4a_fx_jb_X86.so
+SHA1-Digest: tNyEnJpxCJc0hj/bTUJYahbq9so=
 
-Name: etc/presets/presets.xml
-SHA1-Digest: psBq/A6j3r/UGZM6iOBGuzjAmqo=
+Name: viper/app/lib/x86/libV4AJniUtils.so
+SHA1-Digest: 7Vk6xppz853gSewiFN3FhZXKC+c=
+
+Name: viper/lib/soundfx/libv4a_fx_jb_NEON.so
+SHA1-Digest: Ca/Es8qGKwiN8ekSTiRBBM9ELrA=
+
+Name: viper/lib64/soundfx/libeffectproxy.so
+SHA1-Digest: S8qFByCoHm85k11mQsUMF5UQpAs=
+
+Name: viper/su.d/soundserver
+SHA1-Digest: 6hDKm25d66t/u4bfK3oTkrzRlMU=
+
+Name: viper/ViPER_Info.prop
+SHA1-Digest: yPXfxC78j9tKo+bdd1iqxe58dkU=
+
+Name: viper/app/lib/armeabi/libV4AJniUtils.so
+SHA1-Digest: s2YeZYJvJxdE89MRF/J9KG7ANTA=
 

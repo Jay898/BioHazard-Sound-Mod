@@ -1,34 +1,36 @@
 Manifest-Version: 1.0
 Created-By: 1.0 (Android SignApk)
 
-Name: META-INF/com/google/android/updater-script
-SHA1-Digest: tAxv9cC5upx06vEaKHMUEkyHXO0=
-
-Name: etc/presets/TransducerEQ_XML/JBL_Flip/M810_BT_TEQ_v2.xml
-SHA1-Digest: TYxyHCB9s8xULaR/Gv7Fcg75Qj0=
-
-Name: lib/soundfx/libam3daudioenhancement.so
-SHA1-Digest: NcExLBS2HRrMMyFDQ3Li0Frs0TI=
-
-Name: etc/presets/TransducerEQ_XML/JBL_Micro_Wireless/JBL_MICRO_WIRELE
- SS_TEQ_v2.xml
-SHA1-Digest: 8uNDaWi15R1F0AUP7I3EVRPTMBM=
-
 Name: META-INF/com/google/android/update-binary
-SHA1-Digest: fc4MRLWXj2z2FdJpCkHvUbAAtfQ=
+SHA1-Digest: /IsiCJ1khXAejy0Ap8Riywn6EIw=
 
-Name: etc/presets/TransducerEQ_XML/Foxconn/TransducerEQ.xml
-SHA1-Digest: Uj04XfrCiHTutH7cfR2A7vFww00=
+Name: META-INF/com/google/android/updater-script
+SHA1-Digest: e7YEsm7ngjs+CUFtwfeve55Ok9w=
 
-Name: etc/presets/TransducerEQ_XML/Fugoo_Speaker/Fugoo_v1_TEQ_v1.xml
-SHA1-Digest: JiFpxHcbG9VWw6w/JEqvZkcrmqo=
+Name: viper/app/ViPER4Android.apk
+SHA1-Digest: zbQtVAGjqRZt8wlS28IjxJEomXw=
 
-Name: addon.d/6-AM3D.sh
-SHA1-Digest: W8G2EwoWjIB65yWua/45x+TDhJs=
+Name: viper/lib/soundfx/libeffectproxy.so
+SHA1-Digest: mP7Uqf089Yc99nFB+RsAWoBhXfU=
 
-Name: app/AM3DZirene/AM3DZirene.apk
-SHA1-Digest: cfhWOJ0h306N/2kzb2492RcCwAU=
+Name: viper/lib/soundfx/libv4a_fx_jb_X86.so
+SHA1-Digest: vysQdUcdOciHdJGrhuyxc3vCC1Q=
 
-Name: etc/presets/presets.xml
-SHA1-Digest: ZFKOW3f7KW0PGzb5CXvxm7IjBu8=
+Name: viper/app/lib/x86/libV4AJniUtils.so
+SHA1-Digest: hE37Ygq3j9PEX07TtPfwFTMUZ2U=
+
+Name: viper/lib/soundfx/libv4a_fx_jb_NEON.so
+SHA1-Digest: Peo86kDBpXQepxt0TAQhi3jICsw=
+
+Name: viper/lib64/soundfx/libeffectproxy.so
+SHA1-Digest: 4VdZ/DT5ikzWzIJHKphlO2qZu/k=
+
+Name: viper/su.d/soundserver
+SHA1-Digest: 8bYoqSVzGcDePOm51Sfj5czDxr0=
+
+Name: viper/ViPER_Info.prop
+SHA1-Digest: DVp+E9b3qJLXct8vTMFRX+zV384=
+
+Name: viper/app/lib/armeabi/libV4AJniUtils.so
+SHA1-Digest: I6+mvt9HI2IaIMg747pEol0SYAU=
 

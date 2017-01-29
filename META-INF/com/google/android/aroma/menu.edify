@@ -1,0 +1,26 @@
+﻿form(
+    "BioHazard Sound Mod",
+    "<@center>SRC-K(Lite) Aroma Installer</@>",
+    "",
+    "menu.prop",
+  #
+  # Type:
+  #  - group              = Group
+  #  - select             = Select Item
+  #  - select.selected    = Selected Select Item
+  #  - check              = Checkbox Item
+  #  - check.checked      = Checked Checkbox Item
+  #  - hide               = Hidden
+  #
+  #-------------+-----------------------[ Selectbox Without Group ]------------------------------#
+  # PROP ID     | TITLE            |  SUBTITLE                                   |    Type       #
+  #-------------+--------+-------------------------------------------------------+---------------#
+    "group1",     "ViPER4Android",  "",                                         "group",
+      "opt1",     "2.3.4.0",        "Installs V4A with 2.3.4.0 driver",         "select",
+      "opt2",     "2.4.0.1",        "Installs V4A with 2.4.0.1 driver",         "select",
+      "opt3",     "2.5.0.5",        "Installs V4A with 2.5.0.5 driver",         "select.selected",
+    "group2",     "Misc Addons",    "",                                         "group",
+      "chk1",     "AM3D Zirene",    "Installs AM3D Zirene audio effects",       "check",
+      "chk2",     "Dolby Atmos",    "Installs Dolby Atmos audio effects",       "check",
+      "chk3",     "Dolby Digital+", "Installs Dolby Digital+ audio effects",    "check.checked"
+);

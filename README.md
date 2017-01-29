@@ -11,7 +11,15 @@ you have been warned!)
 
 # Features:
 
-- ViPER4Android 2.5.0.5
+Aroma Options:
+- ViPER4Android 2.5.0.5 driver
+- ViPER4Android 2.4.0.1 driver
+- ViPER4Android 2.3.4.0 driver
+- AM3D Zirene audio effects
+- Dolby Atmos audio effects
+- Dolby Digital+ audio effects
+
+Hardcoded:
 - Beats Audio by Dr.Dre
 - Samsung SoundAlive Effects
 - Pure Audio Engine 2.0

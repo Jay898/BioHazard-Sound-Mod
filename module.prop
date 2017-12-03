@@ -1,0 +1,9 @@
+id=BioHazard
+name=BioHazard Sound Mod
+version=SRC-L
+versionCode=12
+author=anandmore
+description=This is an audio mod that utilizes different sound processing libs and drivers from various OEMs, combined all together, and the result is a very deep modification on how Android processes Audio.
+support=https://forum.xda-developers.com/android/software/sound-mod-biohazard-android-infected-t3373888/
+donate=https://www.paypal.me/AnandMore/
+template=1400

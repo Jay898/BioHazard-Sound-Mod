@@ -1,0 +1,16 @@
+
+BioHazard Sound Mod
+Android Infected
+
+Version : SRC-L
+
+Changelog:
+-Rebased the entire mod on Unity Installer and AML v2.4
+-Added Magisk Universal Systemless Interface support
+-Added Oreo(8.x) and improved Nougat(7.x.x) compatibility
+-Added option to choose between 2.3.4.0/2.5.0.5 ViPER4Android
+-Updated ViPER4Android apks with material themed apks
+-Added Lenovo Dolby Atmos (r6.5) as default installation
+-Script changes to support unity installer (see my github for details)
+
+XDA Thread - http://forum.xda-developers.com/android/software/sound-mod-biohazard-android-infected-t3373888
